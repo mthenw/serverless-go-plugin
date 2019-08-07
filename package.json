@@ -1,0 +1,35 @@
+{
+  "name": "serverless-go-plugin",
+  "version": "0.1.0",
+  "description": "Serverless Framework plugin that compiles Go functions on the fly",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha index.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mthenw/serverless-go-plugin.git"
+  },
+  "keywords": [
+    "serverless",
+    "golang",
+    "go",
+    "awslambda"
+  ],
+  "author": "Maciej Winnicki <maciej.winnicki@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mthenw/serverless-go-plugin/issues"
+  },
+  "homepage": "https://github.com/mthenw/serverless-go-plugin#readme",
+  "dependencies": {
+    "lodash.merge": "^4.6.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "proxyquire": "^2.1.1",
+    "sinon": "^7.3.2",
+    "sinon-chai": "^3.3.0"
+  }
+}

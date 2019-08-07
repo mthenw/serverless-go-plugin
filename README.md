@@ -1,1 +1,1 @@
-# serverless-go-plugin
+# Serverless Framework Go Plugin

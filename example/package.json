@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "serverless-go-plugin": "0.0.1"
+  }
+}

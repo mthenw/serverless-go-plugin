@@ -1,0 +1,14 @@
+service: example-service
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: eu-central-1
+
+plugins:
+  - serverless-go-plugin
+
+functions:
+  example:
+    handler: functions/example/main.go
+    memorySize: 128
