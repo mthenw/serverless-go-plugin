@@ -32,6 +32,10 @@ module.exports = class Plugin {
         continue
       }
 
+      if (!func.handler.match(/\.go$/i)) {
+        continue
+      }
+
       const binPath = `${config.binDir}/${name}`
       await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
 

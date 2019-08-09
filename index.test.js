@@ -40,6 +40,11 @@ describe('Go Plugin', () => {
               name: 'testFunc2',
               runtime: 'go1.x',
               handler: 'functions/func2'
+            },
+            testFunc3: {
+              name: 'testFunc3',
+              runtime: 'go1.x',
+              handler: 'functions/func3/main.go'
             }
           }
         }
@@ -52,9 +57,9 @@ describe('Go Plugin', () => {
     await plugin.hooks['before:package:createDeploymentArtifacts']()
 
     // then
-    expect(config.service.functions.testFunc2.handler).to.equal(`.bin/testFunc2`)
+    expect(config.service.functions.testFunc3.handler).to.equal(`.bin/testFunc3`)
     expect(execStub).to.have.been.calledOnceWith(
-      `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2`
+      `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3/main.go`
     )
   })
 
@@ -72,7 +77,7 @@ describe('Go Plugin', () => {
             testFunc1: {
               name: 'testFunc1',
               runtime: 'go1.x',
-              handler: 'functions/func1'
+              handler: 'functions/func1/main.go'
             }
           }
         }
@@ -85,7 +90,7 @@ describe('Go Plugin', () => {
     await plugin.hooks['before:package:createDeploymentArtifacts']()
 
     // then
-    expect(execStub).to.have.been.calledOnceWith(`go build -o .bin/testFunc1 functions/func1`)
+    expect(execStub).to.have.been.calledOnceWith(`go build -o .bin/testFunc1 functions/func1/main.go`)
   })
 
   it('compile Go function w/ global runtime defined', async () => {
@@ -99,7 +104,7 @@ describe('Go Plugin', () => {
           functions: {
             testFunc1: {
               name: 'testFunc1',
-              handler: 'functions/func1'
+              handler: 'functions/func1/main.go'
             }
           }
         }
@@ -124,7 +129,7 @@ describe('Go Plugin', () => {
             testFunc1: {
               name: 'testFunc1',
               runtime: 'go1.x',
-              handler: 'functions/func1'
+              handler: 'functions/func1/main.go'
             }
           }
         }
@@ -153,7 +158,7 @@ describe('Go Plugin', () => {
             testFunc1: {
               name: 'testFunc1',
               runtime: 'go1.x',
-              handler: 'functions/func1',
+              handler: 'functions/func1/main.go',
               package: {
                 exclude: [],
                 include: []

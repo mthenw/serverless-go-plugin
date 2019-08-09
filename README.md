@@ -46,8 +46,10 @@ The plugins takes every Go function defined in `serverless.yaml` and compiles it
 For every matched function it also sets `package` parameter to
 
 ```
-individually: true,
-exclude: [`./**`],
-include: [<path to compiled file>]
+individually: true
+exclude:
+  - `./**`
+include:
+  - `<path to compiled file>`
 ```
 It will happen only if `package` is not defined for a function.
