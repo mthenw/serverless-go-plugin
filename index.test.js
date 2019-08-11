@@ -188,8 +188,6 @@ const serverlessStub = {
     functions: {}
   },
   cli: {
-    log(params) {
-      return params
-    }
+    consoleLog() {}
   }
 }

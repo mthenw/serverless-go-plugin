@@ -23,7 +23,10 @@
   },
   "homepage": "https://github.com/mthenw/serverless-go-plugin#readme",
   "dependencies": {
-    "lodash.merge": "^4.6.2"
+    "chalk": "^2.4.2",
+    "lodash.merge": "^4.6.2",
+    "p-map": "^3.0.0",
+    "pretty-hrtime": "^1.0.3"
   },
   "devDependencies": {
     "chai": "^4.2.0",

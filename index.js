@@ -1,6 +1,10 @@
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 const merge = require('lodash.merge')
+const pMap = require('p-map')
+const os = require('os')
+const prettyHrtime = require('pretty-hrtime')
+const chalk = require('chalk')
 
 const ConfigDefaults = {
   cmd: 'GOOS=linux go build -ldflags="-s -w"',
@@ -25,28 +29,40 @@ module.exports = class Plugin {
       config = merge(config, this.serverless.service.custom.go)
     }
 
-    for (let name in this.serverless.service.functions) {
-      const func = this.serverless.service.functions[name]
-      const runtime = func.runtime || this.serverless.service.provider.runtime
-      if (runtime !== GoRuntime) {
-        continue
-      }
+    const names = Object.keys(this.serverless.service.functions)
 
-      if (!func.handler.match(/\.go$/i)) {
-        continue
-      }
+    const timeStart = process.hrtime()
 
-      const binPath = `${config.binDir}/${name}`
-      await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+    await pMap(
+      names,
+      async name => {
+        const func = this.serverless.service.functions[name]
 
-      this.serverless.service.functions[name].handler = binPath
-      if (!this.serverless.service.functions[name].package) {
-        this.serverless.service.functions[name].package = {
-          individually: true,
-          exclude: [`./**`],
-          include: [binPath]
+        const runtime = func.runtime || this.serverless.service.provider.runtime
+        if (runtime !== GoRuntime) {
+          return
         }
-      }
-    }
+
+        if (!func.handler.match(/\.go$/i)) {
+          return
+        }
+
+        const binPath = `${config.binDir}/${name}`
+        await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+
+        this.serverless.service.functions[name].handler = binPath
+        if (!this.serverless.service.functions[name].package) {
+          this.serverless.service.functions[name].package = {
+            individually: true,
+            exclude: [`./**`],
+            include: [binPath]
+          }
+        }
+      },
+      { concurrency: os.cpus().length }
+    )
+
+    const timeEnd = process.hrtime(timeStart)
+    this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`)
   }
 }
