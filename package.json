@@ -12,9 +12,12 @@
   },
   "keywords": [
     "serverless",
+    "serverless framework",
+    "serverless plugin",
+    "amazon web services",
+    "awslambda",
     "golang",
-    "go",
-    "awslambda"
+    "go"
   ],
   "author": "Maciej Winnicki <maciej.winnicki@gmail.com>",
   "license": "MIT",

@@ -7,23 +7,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-node@v1
+    - name: setup Node.js with NPM registry
+      uses: actions/setup-node@v1
       with:
-        version: '10.x'
-        registry-url: 'https://registry.npmjs.org'
+        version: 10
+        registry-url: https://registry.npmjs.org
     - name: npm install, and test
-      run: | 
+      run: |
         npm install
         npm test
-    - run: npm publish on NPM
-      if: github.event == 'release'
+    - name: npm publish on NPM
+      run: npm publish
+      if: startsWith(github.event.ref, 'refs/tags')
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - uses: actions/setup-node@v1
-      if: github.event == 'release'
+    - name: setup Node.js with GH registry
+      uses: actions/setup-node@v1
+      if: startsWith(github.event.ref, 'refs/tags')
       with:
-        registry-url: 'https://npm.pkg.github.com'
-    - run: npm publish on GitHub
-      if: github.event == 'release'
+        registry-url: https://npm.pkg.github.com
+    - name: npm publish on GitHub
+      run: npm publish
+      if: startsWith(github.event.ref, 'refs/tags')
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
