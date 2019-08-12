@@ -48,7 +48,15 @@ module.exports = class Plugin {
         }
 
         const binPath = `${config.binDir}/${name}`
-        await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+
+        try {
+          await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+        } catch (e) {
+          this.serverless.cli.consoleLog(
+            `Go Plugin: ${chalk.yellow(`Error compiling "${name}" function: ${e.message}`)}`
+          )
+          process.exit(1)
+        }
 
         this.serverless.service.functions[name].handler = binPath
         if (!this.serverless.service.functions[name].package) {

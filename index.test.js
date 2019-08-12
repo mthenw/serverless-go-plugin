@@ -13,7 +13,7 @@ describe('Go Plugin', () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox()
-    execStub = sinon.stub().resolves({ stdin: null, stdout: null })
+    execStub = sandbox.stub().resolves({ stdin: null, stdout: null })
     Plugin = proxyquire('./index.js', {
       util: {
         promisify: () => execStub
@@ -25,7 +25,7 @@ describe('Go Plugin', () => {
     sandbox.restore()
   })
 
-  it('compile only Go function', async () => {
+  it('compiles only Go function', async () => {
     // given
     const config = merge(
       {
@@ -63,7 +63,7 @@ describe('Go Plugin', () => {
     )
   })
 
-  it('compile Go function w/ custom command', async () => {
+  it('compiles Go function w/ custom command', async () => {
     // given
     const config = merge(
       {
@@ -93,7 +93,7 @@ describe('Go Plugin', () => {
     expect(execStub).to.have.been.calledOnceWith(`go build -o .bin/testFunc1 functions/func1/main.go`)
   })
 
-  it('compile Go function w/ global runtime defined', async () => {
+  it('compiles Go function w/ global runtime defined', async () => {
     // given
     const config = merge(
       {
@@ -120,7 +120,7 @@ describe('Go Plugin', () => {
     expect(execStub).to.have.been.calledOnce
   })
 
-  it('compile Go function and package them individually', async () => {
+  it('compiles Go function and package them individually', async () => {
     // given
     const config = merge(
       {
@@ -149,7 +149,7 @@ describe('Go Plugin', () => {
     })
   })
 
-  it('compile Go function and package them individually only if not configured otherwise', async () => {
+  it('compiles Go function and package them individually only if not configured otherwise', async () => {
     // given
     const config = merge(
       {
@@ -179,6 +179,33 @@ describe('Go Plugin', () => {
       exclude: [],
       include: []
     })
+  })
+
+  it('exits if compilation fails', async () => {
+    // given
+    execStub.throws()
+    sandbox.stub(process, 'exit')
+    const config = merge(
+      {
+        service: {
+          functions: {
+            testFunc1: {
+              name: 'testFunc1',
+              runtime: 'go1.x',
+              handler: 'functions/func1/error.go'
+            }
+          }
+        }
+      },
+      serverlessStub
+    )
+    const plugin = new Plugin(config)
+
+    // when
+    await plugin.hooks['before:package:createDeploymentArtifacts']()
+
+    // then
+    expect(process.exit).to.have.been.called
   })
 })
 
