@@ -120,7 +120,7 @@ describe('Go Plugin', () => {
     expect(execStub).to.have.been.calledOnce
   })
 
-  it('compiles Go function and package them individually', async () => {
+  it('compiles Go function and it to "include" list in package setting', async () => {
     // given
     const config = merge(
       {
@@ -142,7 +142,7 @@ describe('Go Plugin', () => {
     await plugin.hooks['before:package:createDeploymentArtifacts']()
 
     // then
-    expect(config.service.functions.testFunc1.package).to.deep.equal({
+    expect(config.service.package).to.deep.equal({
       individually: true,
       exclude: [`./**`],
       include: [`.bin/testFunc1`]
