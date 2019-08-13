@@ -11,7 +11,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: 10
-        registry-url: https://registry.npmjs.org
     - name: npm install, and test
       run: |
         npm install
@@ -21,13 +20,3 @@ jobs:
       if: startsWith(github.event.ref, 'refs/tags')
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - name: setup Node.js with GH registry
-      uses: actions/setup-node@v1
-      if: startsWith(github.event.ref, 'refs/tags')
-      with:
-        registry-url: https://npm.pkg.github.com
-    - name: npm publish on GitHub
-      run: npm publish
-      if: startsWith(github.event.ref, 'refs/tags')
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
