@@ -29,18 +29,10 @@ module.exports = class Plugin {
       config = merge(config, this.serverless.service.custom.go)
     }
 
-    this.serverless.service.package = merge(
-      {
-        individually: true,
-        exclude: [`./**`],
-        include: []
-      },
-      this.serverless.service.package
-    )
-
     const names = Object.keys(this.serverless.service.functions)
 
     const timeStart = process.hrtime()
+
     await pMap(
       names,
       async name => {
@@ -67,13 +59,18 @@ module.exports = class Plugin {
         }
 
         this.serverless.service.functions[name].handler = binPath
-
-        this.serverless.service.package.include.push(binPath)
+        if (!this.serverless.service.functions[name].package) {
+          this.serverless.service.functions[name].package = {
+            individually: true,
+            exclude: [`./**`],
+            include: [binPath]
+          }
+        }
       },
       { concurrency: os.cpus().length }
     )
-    const timeEnd = process.hrtime(timeStart)
 
+    const timeEnd = process.hrtime(timeStart)
     this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`)
   }
 }
