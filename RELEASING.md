@@ -28,7 +28,7 @@
     $ git push origin head --tags
     ```
 
-1. GitHub Actions will publish new version to NPM and GPR.
+1. GitHub Actions will publish new version to NPM.
 
 1. Publish new release on GitHub with [`release`](https://github.com/zeit/release) package.
 
