@@ -1,5 +1,7 @@
 service: example-service
 
+frameworkVersion: '>=1.50.0 <2.0.0'
+
 provider:
   name: aws
   runtime: go1.x
