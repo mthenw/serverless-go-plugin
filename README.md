@@ -21,7 +21,7 @@
       - serverless-go-plugin
     ```
 
-1. Change every Go function's `handler` to a path to the `*.go` file. E.g.
+1. Replace every Go function's `handler` with `*.go` file paths. E.g.
 
     ```
     functions:
