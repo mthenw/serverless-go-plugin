@@ -31,7 +31,7 @@
 
 ## Configuration
 
-Default values
+Default values:
 
 ```
 custom:
@@ -42,7 +42,7 @@ custom:
 
 ## How does it work?
 
-The plugins takes every Go function defined in `serverless.yaml` and compiles it into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles functions with handler pointing to `*.go` file only.
+The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles functions only if `handler` property points to `*.go` file.
 
 For every matched function it also sets `package` parameter to
 
@@ -51,7 +51,7 @@ individually: true
 exclude:
   - `./**`
 include:
-  - `<path to compiled file>`
+  - `<path to the compiled file>`
 ```
 
 It will happen only if `package` is not defined for a function.
