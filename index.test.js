@@ -234,6 +234,31 @@ describe('Go Plugin', () => {
       `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
     )
   })
+
+  it('should update handler when invoking locally', async () => {
+    // given
+    const config = merge(
+      {
+        service: {
+          functions: {
+            testFunc1: {
+              name: 'testFunc1',
+              runtime: 'go1.x',
+              handler: 'functions/func1/main.go'
+            }
+          }
+        }
+      },
+      serverlessStub
+    )
+    const plugin = new Plugin(config, { function: 'testFunc1' })
+
+    // when
+    await plugin.hooks['before:invoke:local:invoke']()
+
+    // then
+    expect(config.service.functions.testFunc1.handler).to.equal('.bin/testFunc1')
+  })
 })
 
 const serverlessStub = {

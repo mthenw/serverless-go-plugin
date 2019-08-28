@@ -20,15 +20,15 @@ module.exports = class Plugin {
 
     this.hooks = {
       'before:deploy:function:packageFunction': this.compile.bind(this),
-      'before:package:createDeploymentArtifacts': this.compile.bind(this)
+      'before:package:createDeploymentArtifacts': this.compile.bind(this),
+      // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
+      // plugin needs to update the handler before invocation beecause package cmd is called after the variable is set
+      'before:invoke:local:invoke': this.updateHandler.bind(this)
     }
   }
 
   async compile() {
-    let config = ConfigDefaults
-    if (this.serverless.service.custom && this.serverless.service.custom.go) {
-      config = merge(config, this.serverless.service.custom.go)
-    }
+    const config = this.getConfig()
 
     let names = Object.keys(this.serverless.service.functions)
     if (this.options.function) {
@@ -76,5 +76,20 @@ module.exports = class Plugin {
 
     const timeEnd = process.hrtime(timeStart)
     this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`)
+  }
+
+  updateHandler() {
+    const config = this.getConfig()
+    const name = this.options.function
+    const binPath = `${config.binDir}/${name}`
+    this.serverless.service.functions[name].handler = binPath
+  }
+
+  getConfig() {
+    let config = ConfigDefaults
+    if (this.serverless.service.custom && this.serverless.service.custom.go) {
+      config = merge(config, this.serverless.service.custom.go)
+    }
+    return config
   }
 }
