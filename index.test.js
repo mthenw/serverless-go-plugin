@@ -207,6 +207,33 @@ describe('Go Plugin', () => {
     // then
     expect(process.exit).to.have.been.called
   })
+
+  it('compiles single Go function', async () => {
+    // given
+    const config = merge(
+      {
+        service: {
+          functions: {
+            testFunc1: {
+              name: 'testFunc1',
+              runtime: 'go1.x',
+              handler: 'functions/func1/main.go'
+            }
+          }
+        }
+      },
+      serverlessStub
+    )
+    const plugin = new Plugin(config, { function: 'testFunc1' })
+
+    // when
+    await plugin.hooks['before:deploy:function:packageFunction']()
+
+    // then
+    expect(execStub).to.have.been.calledOnceWith(
+      `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
+    )
+  })
 })
 
 const serverlessStub = {

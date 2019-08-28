@@ -16,9 +16,10 @@ const GoRuntime = 'go1.x'
 module.exports = class Plugin {
   constructor(serverless, options) {
     this.serverless = serverless
-    this.options = options
+    this.options = options || {}
 
     this.hooks = {
+      'before:deploy:function:packageFunction': this.compile.bind(this),
       'before:package:createDeploymentArtifacts': this.compile.bind(this)
     }
   }
@@ -29,7 +30,10 @@ module.exports = class Plugin {
       config = merge(config, this.serverless.service.custom.go)
     }
 
-    const names = Object.keys(this.serverless.service.functions)
+    let names = Object.keys(this.serverless.service.functions)
+    if (this.options.function) {
+      names = [this.options.function]
+    }
 
     const timeStart = process.hrtime()
 
