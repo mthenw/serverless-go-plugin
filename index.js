@@ -17,72 +17,82 @@ module.exports = class Plugin {
   constructor(serverless, options) {
     this.serverless = serverless
     this.options = options || {}
+    this.isInvoking = false
 
     this.hooks = {
-      'before:deploy:function:packageFunction': this.compile.bind(this),
-      'before:package:createDeploymentArtifacts': this.compile.bind(this),
+      'before:deploy:function:packageFunction': this.compileFunction.bind(this),
+      'before:package:createDeploymentArtifacts': this.compileFunctions.bind(this),
       // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
-      // plugin needs to update the handler before invocation beecause package cmd is called after the variable is set
-      'before:invoke:local:invoke': this.updateHandler.bind(this)
+      // plugin needs to compile a function and then ignore packaging.
+      'before:invoke:local:invoke': this.compileFunctionAndIgnorePackage.bind(this)
     }
   }
 
-  async compile() {
-    const config = this.getConfig()
-
-    let names = Object.keys(this.serverless.service.functions)
-    if (this.options.function) {
-      names = [this.options.function]
-    }
+  async compileFunction() {
+    const name = this.options.function
+    const func = this.serverless.service.functions[this.options.function]
 
     const timeStart = process.hrtime()
+    await this.compile(name, func)
+    const timeEnd = process.hrtime(timeStart)
 
+    this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow(`Compilation time (${name}): ${prettyHrtime(timeEnd)}`)}`)
+  }
+
+  async compileFunctions() {
+    if (this.isInvoking) {
+      return
+    }
+
+    let names = Object.keys(this.serverless.service.functions)
+
+    const timeStart = process.hrtime()
     await pMap(
       names,
       async name => {
         const func = this.serverless.service.functions[name]
-
-        const runtime = func.runtime || this.serverless.service.provider.runtime
-        if (runtime !== GoRuntime) {
-          return
-        }
-
-        if (!func.handler.match(/\.go$/i)) {
-          return
-        }
-
-        const binPath = `${config.binDir}/${name}`
-
-        try {
-          await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
-        } catch (e) {
-          this.serverless.cli.consoleLog(
-            `Go Plugin: ${chalk.yellow(`Error compiling "${name}" function: ${e.message}`)}`
-          )
-          process.exit(1)
-        }
-
-        this.serverless.service.functions[name].handler = binPath
-        if (!this.serverless.service.functions[name].package) {
-          this.serverless.service.functions[name].package = {
-            individually: true,
-            exclude: [`./**`],
-            include: [binPath]
-          }
-        }
+        await this.compile(name, func)
       },
       { concurrency: os.cpus().length }
     )
-
     const timeEnd = process.hrtime(timeStart)
+
     this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`)
   }
 
-  updateHandler() {
+  compileFunctionAndIgnorePackage() {
+    this.isInvoking = true
+    return this.compileFunction()
+  }
+
+  async compile(name, func) {
     const config = this.getConfig()
-    const name = this.options.function
+
+    const runtime = func.runtime || this.serverless.service.provider.runtime
+    if (runtime !== GoRuntime) {
+      return
+    }
+
+    if (!func.handler.match(/\.go$/i)) {
+      return
+    }
+
     const binPath = `${config.binDir}/${name}`
+    try {
+      await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+    } catch (e) {
+      this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow(`Error compiling "${name}" function: ${e.message}`)}`)
+      process.exit(1)
+    }
+
     this.serverless.service.functions[name].handler = binPath
+    if (!this.serverless.service.functions[name].package) {
+      this.serverless.service.functions[name].package = {
+        individually: true,
+        exclude: [`./**`],
+        include: [binPath]
+      }
+    }
   }
 
   getConfig() {
