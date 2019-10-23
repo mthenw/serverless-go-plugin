@@ -85,7 +85,9 @@ module.exports = class Plugin {
     try {
       await exec(`${config.cmd} -o ${compileBinPath} ${func.handler}`, { cwd: config.baseDir })
     } catch (e) {
-      this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow(`Error compiling "${name}" function: ${e.message}`)}`)
+      this.serverless.cli.consoleLog(
+        `Go Plugin: ${chalk.yellow(`Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`)}`
+      )
       process.exit(1)
     }
 

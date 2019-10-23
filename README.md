@@ -43,7 +43,7 @@ Default values:
 ```
 custom:
   go:
-    baseDir: . # folder where go.mod file lives
+    baseDir: . # folder where go.mod file lives, if set `handler` property should be set relatively to that folder
     binDir: .bin # target folder for binary files
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
 ```
