@@ -2,6 +2,7 @@ const proxyquire = require('proxyquire')
 const merge = require('lodash.merge')
 const sinon = require('sinon')
 const chai = require('chai')
+const path = require('path')
 const expect = chai.expect
 
 chai.use(require('sinon-chai'))
@@ -93,6 +94,39 @@ describe('Go Plugin', () => {
     expect(execStub).to.have.been.calledOnceWith(`go build -o .bin/testFunc1 functions/func1/main.go`)
   })
 
+  it('compiles Go function w/ custom base dir', async () => {
+    // given
+    const config = merge(
+      {
+        service: {
+          custom: {
+            go: {
+              baseDir: 'gopath'
+            }
+          },
+          functions: {
+            testFunc1: {
+              name: 'testFunc1',
+              runtime: 'go1.x',
+              handler: 'functions/func1/main.go'
+            }
+          }
+        }
+      },
+      serverlessStub
+    )
+    const plugin = new Plugin(config)
+
+    // when
+    await plugin.hooks['before:package:createDeploymentArtifacts']()
+
+    // then
+    expect(execStub).to.have.been.calledOnceWith(
+      `GOOS=linux go build -ldflags="-s -w" -o ../.bin/testFunc1 functions/func1/main.go`,
+      { cwd: 'gopath' }
+    )
+  })
+
   it('compiles Go function w/ global runtime defined', async () => {
     // given
     const config = merge(
@@ -181,7 +215,7 @@ describe('Go Plugin', () => {
     })
   })
 
-  it('exits if compilation fails', async () => {
+  it('exit if compilation fails', async () => {
     // given
     execStub.throws()
     sandbox.stub(process, 'exit')

@@ -5,10 +5,12 @@ const pMap = require('p-map')
 const os = require('os')
 const prettyHrtime = require('pretty-hrtime')
 const chalk = require('chalk')
+const path = require('path')
 
 const ConfigDefaults = {
-  cmd: 'GOOS=linux go build -ldflags="-s -w"',
-  binDir: '.bin'
+  baseDir: '.',
+  binDir: '.bin',
+  cmd: 'GOOS=linux go build -ldflags="-s -w"'
 }
 
 const GoRuntime = 'go1.x'
@@ -77,14 +79,17 @@ module.exports = class Plugin {
       return
     }
 
-    const binPath = `${config.binDir}/${name}`
+    const absHandler = path.resolve(config.baseDir)
+    const absBin = path.resolve(config.binDir)
+    const compileBinPath = path.join(path.relative(absHandler, absBin), name) // binPath is based on cwd no baseDir
     try {
-      await exec(`${config.cmd} -o ${binPath} ${func.handler}`)
+      await exec(`${config.cmd} -o ${compileBinPath} ${func.handler}`, { cwd: config.baseDir })
     } catch (e) {
       this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow(`Error compiling "${name}" function: ${e.message}`)}`)
       process.exit(1)
     }
 
+    const binPath = path.join(config.binDir, name)
     this.serverless.service.functions[name].handler = binPath
     if (!this.serverless.service.functions[name].package) {
       this.serverless.service.functions[name].package = {

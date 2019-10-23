@@ -42,8 +42,9 @@ Default values:
 ```
 custom:
   go:
-    cmd: GOOS=linux go build -ldflags="-s -w"'
-    binDir: .bin
+    baseDir: . # folder where go.mod file lives
+    binDir: .bin # target folder for binary files
+    cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
 ```
 
 ## How does it work?
