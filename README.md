@@ -34,7 +34,7 @@ Features:
     functions:
       example:
         runtime: go1.x
-        handler: functions/example/main.go # or just `functions/example`
+        handler: functions/example/main.go # or just functions/example
     ```
 
 ## Configuration
