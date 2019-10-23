@@ -11,10 +11,13 @@ jobs:
       with:
         node-version: '10.x'
         registry-url: 'https://registry.npmjs.org'
-    - name: npm install and test
+    - name: npm install, test and report coverage
       run: |
         npm install
         npm test
+        npm run report-coverage
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: npm publish on NPM
       run: npm publish
       if: startsWith(github.event.ref, 'refs/tags')
