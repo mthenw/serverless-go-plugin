@@ -8,7 +8,7 @@
 
 Features:
 
-- Concurrent compilation happen across all CPU cores.
+- Concurrent compilation happens across all CPU cores.
 - Support for both `serverless deploy` and `serverless deploy function` commands.
 - Support for `serverless invoke local` command.
 
@@ -28,12 +28,13 @@ Features:
       - serverless-go-plugin
     ```
 
-1. Replace every Go function's `handler` with `*.go` file paths. E.g.
+1. Replace every Go function's `handler` with `*.go` file path or a package path. E.g.
 
     ```
     functions:
       example:
-        handler: functions/example/main.go
+        runtime: go1.x
+        handler: functions/example/main.go # or just `functions/example`
     ```
 
 ## Configuration
@@ -50,7 +51,7 @@ custom:
 
 ## How does it work?
 
-The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles functions only if `handler` property points to `*.go` file.
+The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles a function only if `runtime` (either on function or provider level) is set to Go (`go1.x`).
 
 For every matched function it also sets `package` parameter to
 

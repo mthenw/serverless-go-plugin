@@ -75,10 +75,6 @@ module.exports = class Plugin {
       return
     }
 
-    if (!func.handler.match(/\.go$/i)) {
-      return
-    }
-
     const absHandler = path.resolve(config.baseDir)
     const absBin = path.resolve(config.binDir)
     const compileBinPath = path.join(path.relative(absHandler, absBin), name) // binPath is based on cwd no baseDir

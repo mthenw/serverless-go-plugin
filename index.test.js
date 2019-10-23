@@ -26,7 +26,7 @@ describe('Go Plugin', () => {
     sandbox.restore()
   })
 
-  it('compiles only Go function', async () => {
+  it('compiles only Go functions', async () => {
     // given
     const config = merge(
       {
@@ -40,12 +40,12 @@ describe('Go Plugin', () => {
             testFunc2: {
               name: 'testFunc2',
               runtime: 'go1.x',
-              handler: 'functions/func2'
+              handler: 'functions/func2/main.go'
             },
             testFunc3: {
               name: 'testFunc3',
               runtime: 'go1.x',
-              handler: 'functions/func3/main.go'
+              handler: 'functions/func3'
             }
           }
         }
@@ -58,10 +58,12 @@ describe('Go Plugin', () => {
     await plugin.hooks['before:package:createDeploymentArtifacts']()
 
     // then
-    expect(config.service.functions.testFunc3.handler).to.equal(`.bin/testFunc3`)
-    expect(execStub).to.have.been.calledOnceWith(
-      `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3/main.go`
+    expect(config.service.functions.testFunc2.handler).to.equal(`.bin/testFunc2`)
+    expect(execStub).to.have.been.calledWith(
+      `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`
     )
+    expect(config.service.functions.testFunc3.handler).to.equal(`.bin/testFunc3`)
+    expect(execStub).to.have.been.calledWith(`GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3`)
   })
 
   it('compiles Go function w/ custom command', async () => {
@@ -215,7 +217,7 @@ describe('Go Plugin', () => {
     })
   })
 
-  it('exit if compilation fails', async () => {
+  it('exits if compilation fails', async () => {
     // given
     execStub.throws()
     sandbox.stub(process, 'exit')
