@@ -8,30 +8,12 @@
     $ git pull <remote> master --rebase
     ```
 
-1. Edit the `package.json` file changing `version` field to your new release version and run `npm i`.
-
-1. Commit your changes.
+1. Bump package version
 
     ```sh
-    $ git commit -am "Release <version>"
+    $ npm version [major | minor | patch]
     ```
 
-1. Tag the version.
-
-    ```sh
-    $ git tag v<version>
-    ```
-
-1. Push the commit and tag.
-
-    ```sh
-    $ git push origin head --tags
-    ```
+1. `postversion` script will push tags to the repo and open GitHub release page.
 
 1. GitHub Actions will publish new version to NPM.
-
-1. Publish new release on GitHub with [`release`](https://github.com/zeit/release) package.
-
-    ```sh
-    $ npx release -P
-    ```
