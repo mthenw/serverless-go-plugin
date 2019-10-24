@@ -22,7 +22,7 @@ Features:
     ```
 
 1. Add it to your `serverless.yaml`
-
+aaa
     ```
     plugins:
       - serverless-go-plugin
