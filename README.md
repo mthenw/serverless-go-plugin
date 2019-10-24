@@ -53,14 +53,12 @@ custom:
 
 The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles a function only if `runtime` (either on function or provider level) is set to Go (`go1.x`).
 
-For every matched function it also sets `package` parameter to
+For every matched function it also overrides `package` parameter to
 
 ```
 individually: true
 exclude:
   - `./**`
 include:
-  - `<path to the compiled file>`
+  - `<path to the compiled file and any files that you defined to be included>`
 ```
-
-It will happen only if `package` is not defined for a function.

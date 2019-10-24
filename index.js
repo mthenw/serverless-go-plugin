@@ -89,13 +89,15 @@ module.exports = class Plugin {
 
     const binPath = path.join(config.binDir, name)
     this.serverless.service.functions[name].handler = binPath
-    if (!this.serverless.service.functions[name].package) {
-      this.serverless.service.functions[name].package = {
-        individually: true,
-        exclude: [`./**`],
-        include: [binPath]
-      }
+    const packageConfig = {
+      individually: true,
+      exclude: [`./**`],
+      include: [binPath]
     }
+    if (this.serverless.service.functions[name].package) {
+      packageConfig.include = packageConfig.include.concat(this.serverless.service.functions[name].package.include)
+    }
+    this.serverless.service.functions[name].package = packageConfig
   }
 
   getConfig() {

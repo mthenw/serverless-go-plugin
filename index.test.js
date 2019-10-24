@@ -156,7 +156,7 @@ describe('Go Plugin', () => {
     expect(execStub).to.have.been.calledOnce
   })
 
-  it('compiles Go function and package them individually', async () => {
+  it('package Go function individually', async () => {
     // given
     const config = merge(
       {
@@ -185,7 +185,7 @@ describe('Go Plugin', () => {
     })
   })
 
-  it('compiles Go function and package them individually only if not configured otherwise', async () => {
+  it('package Go function allowing including more files', async () => {
     // given
     const config = merge(
       {
@@ -196,8 +196,7 @@ describe('Go Plugin', () => {
               runtime: 'go1.x',
               handler: 'functions/func1/main.go',
               package: {
-                exclude: [],
-                include: []
+                include: ['somepath']
               }
             }
           }
@@ -212,8 +211,9 @@ describe('Go Plugin', () => {
 
     // then
     expect(config.service.functions.testFunc1.package).to.deep.equal({
-      exclude: [],
-      include: []
+      individually: true,
+      exclude: ['./**'],
+      include: [`.bin/testFunc1`, 'somepath']
     })
   })
 
