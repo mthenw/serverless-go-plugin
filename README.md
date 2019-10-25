@@ -8,7 +8,7 @@
 
 *The plugin works with Serverless Framework version 1.52 and above.*
 
-Features:
+## Features
 
 - Concurrent compilation happens across all CPU cores.
 - Support for both `serverless deploy` and `serverless deploy function` commands.
