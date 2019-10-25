@@ -13,4 +13,3 @@ plugins:
 functions:
   example:
     handler: ./functions/example/main.go # or just "./functions/example"
-    memorySize: 128
