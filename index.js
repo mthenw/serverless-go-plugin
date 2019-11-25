@@ -26,7 +26,17 @@ module.exports = class Plugin {
       'before:package:createDeploymentArtifacts': this.compileFunctions.bind(this),
       // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
       // plugin needs to compile a function and then ignore packaging.
-      'before:invoke:local:invoke': this.compileFunctionAndIgnorePackage.bind(this)
+      'before:invoke:local:invoke': this.compileFunctionAndIgnorePackage.bind(this),
+      'go-compile:compile': this.compileFunctions.bind(this)
+    }
+
+    this.commands = {
+      'go-compile': {
+        lifecycleEvents: [
+            'compile'
+        ],
+        usage: 'Compiles source code for all Go functions'
+      }
     }
   }
 
