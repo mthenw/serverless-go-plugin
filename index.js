@@ -23,19 +23,24 @@ module.exports = class Plugin {
 
     this.hooks = {
       'before:deploy:function:packageFunction': this.compileFunction.bind(this),
-      'before:package:createDeploymentArtifacts': this.compileFunctions.bind(this),
+      'before:package:createDeploymentArtifacts': this.compileFunctions.bind(
+        this
+      ),
       // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
       // plugin needs to compile a function and then ignore packaging.
-      'before:invoke:local:invoke': this.compileFunctionAndIgnorePackage.bind(this),
-      'go-compile:compile': this.compileFunctions.bind(this)
+      'before:invoke:local:invoke': this.compileFunctionAndIgnorePackage.bind(
+        this
+      ),
+      'go:build:build': this.compileFunctions.bind(this)
     }
 
     this.commands = {
-      'go-compile': {
-        lifecycleEvents: [
-            'compile'
-        ],
-        usage: 'Compiles source code for all Go functions'
+      go: {
+        usage: 'Manage Go functions',
+        lifecycleEvents: ['go'],
+        commands: {
+          build: { usage: 'Build all Go functions', lifecycleEvents: ['build'] }
+        }
       }
     }
   }
@@ -48,7 +53,11 @@ module.exports = class Plugin {
     await this.compile(name, func)
     const timeEnd = process.hrtime(timeStart)
 
-    this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow(`Compilation time (${name}): ${prettyHrtime(timeEnd)}`)}`)
+    this.serverless.cli.consoleLog(
+      `Go Plugin: ${chalk.yellow(
+        `Compilation time (${name}): ${prettyHrtime(timeEnd)}`
+      )}`
+    )
   }
 
   async compileFunctions() {
@@ -69,7 +78,9 @@ module.exports = class Plugin {
     )
     const timeEnd = process.hrtime(timeStart)
 
-    this.serverless.cli.consoleLog(`Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`)
+    this.serverless.cli.consoleLog(
+      `Go Plugin: ${chalk.yellow('Compilation time: ' + prettyHrtime(timeEnd))}`
+    )
   }
 
   compileFunctionAndIgnorePackage() {
@@ -89,10 +100,14 @@ module.exports = class Plugin {
     const absBin = path.resolve(config.binDir)
     const compileBinPath = path.join(path.relative(absHandler, absBin), name) // binPath is based on cwd no baseDir
     try {
-      await exec(`${config.cmd} -o ${compileBinPath} ${func.handler}`, { cwd: config.baseDir })
+      await exec(`${config.cmd} -o ${compileBinPath} ${func.handler}`, {
+        cwd: config.baseDir
+      })
     } catch (e) {
       this.serverless.cli.consoleLog(
-        `Go Plugin: ${chalk.yellow(`Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`)}`
+        `Go Plugin: ${chalk.yellow(
+          `Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`
+        )}`
       )
       process.exit(1)
     }
@@ -105,7 +120,9 @@ module.exports = class Plugin {
       include: [binPath]
     }
     if (this.serverless.service.functions[name].package) {
-      packageConfig.include = packageConfig.include.concat(this.serverless.service.functions[name].package.include)
+      packageConfig.include = packageConfig.include.concat(
+        this.serverless.service.functions[name].package.include
+      )
     }
     this.serverless.service.functions[name].package = packageConfig
   }

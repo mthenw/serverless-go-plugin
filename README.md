@@ -13,6 +13,7 @@
 - Concurrent compilation happens across all CPU cores.
 - Support for both `serverless deploy` and `serverless deploy function` commands.
 - Support for `serverless invoke local` command.
+- Additional command `serverless go build`.
 
 ## Install
 
