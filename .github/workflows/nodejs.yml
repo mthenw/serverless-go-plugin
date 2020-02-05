@@ -1,25 +1,24 @@
 name: Node.js CI
 
-on: [push]
+on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '10.x'
-        registry-url: 'https://registry.npmjs.org'
-    - name: npm install, test and report coverage
-      run: |
+        node-version: 12
+    - run: npm install
+    - run: npm run lint
+    - run: |
         npm install
         npm test
         npm run report-coverage
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - name: npm publish on NPM
-      run: npm publish
-      if: startsWith(github.event.ref, 'refs/tags')
+    - uses: primer/publish@master
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_REGISTRY_URL: https://registry.npmjs.org
