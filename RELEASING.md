@@ -14,6 +14,4 @@
     $ npm version [major | minor | patch]
     ```
 
-1. `postversion` script will push tags to the repo and open GitHub release page.
-
-1. GitHub Actions will publish new version to NPM.
+1. `postversion` script will push tags to the repo, publish NPM package, and open GitHub release page.

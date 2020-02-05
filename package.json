@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc _mocha index.test.js",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "postversion": "npm run test && git push && git push --tags && npx release -P"
+    "postversion": "npm run test && git push && git push --tags && npm publish && npx release -P"
   },
   "repository": {
     "type": "git",
