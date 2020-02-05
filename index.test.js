@@ -63,13 +63,15 @@ describe('Go Plugin', () => {
         `.bin/testFunc2`
       )
       expect(execStub).to.have.been.calledWith(
-        `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`
       )
+      expect(execStub.firstCall.args[1].cwd).to.equal('.')
+      expect(execStub.firstCall.args[1].env.GOOS).to.equal('linux')
       expect(config.service.functions.testFunc3.handler).to.equal(
         `.bin/testFunc3`
       )
       expect(execStub).to.have.been.calledWith(
-        `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3`
+        `go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3`
       )
     })
 
@@ -80,7 +82,7 @@ describe('Go Plugin', () => {
           service: {
             custom: {
               go: {
-                cmd: 'go build'
+                cmd: 'CGO_ENABLED=1 GOOS=linux go build'
               }
             },
             functions: {
@@ -103,6 +105,8 @@ describe('Go Plugin', () => {
       expect(execStub).to.have.been.calledOnceWith(
         `go build -o .bin/testFunc1 functions/func1/main.go`
       )
+      expect(execStub.firstCall.args[1].env.CGO_ENABLED).to.equal('1')
+      expect(execStub.firstCall.args[1].env.GOOS).to.equal('linux')
     })
 
     it('compiles Go function w/ custom base dir', async () => {
@@ -132,12 +136,10 @@ describe('Go Plugin', () => {
       await plugin.hooks['before:package:createDeploymentArtifacts']()
 
       // then
-      expect(
-        execStub
-      ).to.have.been.calledOnceWith(
-        `GOOS=linux go build -ldflags="-s -w" -o ../.bin/testFunc1 functions/func1/main.go`,
-        { cwd: 'gopath' }
+      expect(execStub).to.have.been.calledOnceWith(
+        `go build -ldflags="-s -w" -o ../.bin/testFunc1 functions/func1/main.go`
       )
+      expect(execStub.firstCall.args[1].cwd).to.equal('gopath')
     })
 
     it('compiles Go function w/ global runtime defined', async () => {
@@ -278,8 +280,9 @@ describe('Go Plugin', () => {
 
       // then
       expect(execStub).to.have.been.calledOnceWith(
-        `GOOS=linux go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
       )
+      expect(execStub.firstCall.args[1].cwd).to.equal('.')
     })
   })
 

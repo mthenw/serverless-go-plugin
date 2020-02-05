@@ -100,8 +100,12 @@ module.exports = class Plugin {
     const absBin = path.resolve(config.binDir)
     const compileBinPath = path.join(path.relative(absHandler, absBin), name) // binPath is based on cwd no baseDir
     try {
-      await exec(`${config.cmd} -o ${compileBinPath} ${func.handler}`, {
-        cwd: config.baseDir
+      const [env, command] = parseCommand(
+        `${config.cmd} -o ${compileBinPath} ${func.handler}`
+      )
+      await exec(command, {
+        cwd: config.baseDir,
+        env: Object.assign({}, process.env, env)
       })
     } catch (e) {
       this.serverless.cli.consoleLog(
@@ -134,4 +138,31 @@ module.exports = class Plugin {
     }
     return config
   }
+}
+
+const envSetterRegex = /^(\w+)=('(.*)'|"(.*)"|(.*))/
+function parseCommand(cmd) {
+  const args = cmd.split(' ')
+  const envSetters = {}
+  let command = ''
+  for (let i = 0; i < args.length; i++) {
+    const match = envSetterRegex.exec(args[i])
+    if (match) {
+      let value
+      if (typeof match[3] !== 'undefined') {
+        value = match[3]
+      } else if (typeof match[4] === 'undefined') {
+        value = match[5]
+      } else {
+        value = match[4]
+      }
+
+      envSetters[match[1]] = value
+    } else {
+      command = args.slice(i).join(' ')
+      break
+    }
+  }
+
+  return [envSetters, command]
 }
