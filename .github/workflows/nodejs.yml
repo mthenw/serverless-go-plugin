@@ -11,9 +11,7 @@ jobs:
       with:
         node-version: 12
     - run: npm install
-    - run: npm run lint
     - run: |
-        npm install
         npm test
         npm run report-coverage
       env:
