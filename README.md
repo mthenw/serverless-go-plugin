@@ -8,7 +8,7 @@
 
 ### [dev.to: A better way of deploying Go services with Serverless Framework](https://dev.to/mthenw/a-better-way-of-deploying-go-services-with-serverless-framework-41c4)
 
-
+![output](https://user-images.githubusercontent.com/455261/73918022-fb952e00-48c0-11ea-9120-a7f34ad1ae55.gif)
 
 ## Features
 
