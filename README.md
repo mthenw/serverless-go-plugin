@@ -51,6 +51,7 @@ custom:
   go:
     baseDir: . # folder where go.mod file lives, if set `handler` property should be set relatively to that folder
     binDir: .bin # target folder for binary files
+    cgo: 0 # CGO_ENABLED flag
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
 ```
 

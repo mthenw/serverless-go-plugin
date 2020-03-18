@@ -2,7 +2,6 @@ const proxyquire = require('proxyquire')
 const merge = require('lodash.merge')
 const sinon = require('sinon')
 const chai = require('chai')
-const path = require('path')
 const expect = chai.expect
 
 chai.use(require('sinon-chai'))
@@ -67,6 +66,7 @@ describe('Go Plugin', () => {
       )
       expect(execStub.firstCall.args[1].cwd).to.equal('.')
       expect(execStub.firstCall.args[1].env.GOOS).to.equal('linux')
+      expect(execStub.firstCall.args[1].env.CGO_ENABLED).to.equal('0')
       expect(config.service.functions.testFunc3.handler).to.equal(
         `.bin/testFunc3`
       )

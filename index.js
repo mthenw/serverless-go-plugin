@@ -10,6 +10,7 @@ const path = require('path')
 const ConfigDefaults = {
   baseDir: '.',
   binDir: '.bin',
+  cgo: 0,
   cmd: 'GOOS=linux go build -ldflags="-s -w"'
 }
 
@@ -105,7 +106,12 @@ module.exports = class Plugin {
       )
       await exec(command, {
         cwd: config.baseDir,
-        env: Object.assign({}, process.env, env)
+        env: Object.assign(
+          {},
+          process.env,
+          { CGO_ENABLED: config.cgo.toString() },
+          env
+        )
       })
     } catch (e) {
       this.serverless.cli.consoleLog(
