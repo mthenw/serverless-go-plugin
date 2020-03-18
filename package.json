@@ -1,6 +1,6 @@
 {
   "name": "serverless-go-plugin",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "Serverless Framework plugin that compiles Go functions on the fly",
   "main": "index.js",
   "scripts": {
