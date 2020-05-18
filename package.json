@@ -4,6 +4,7 @@
   "description": "Serverless Framework plugin that compiles Go functions on the fly",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint ./*.js",
     "test": "nyc _mocha index.test.js",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "postversion": "npm run test && git push && git push --tags && npm publish && npx release -P"
@@ -40,6 +41,28 @@
     "nyc": "^15.0.0",
     "proxyquire": "^2.1.1",
     "sinon": "^7.3.2",
-    "sinon-chai": "^3.3.0"
+    "sinon-chai": "^3.3.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.5"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:prettier/recommended"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": "error"
+    },
+    "parserOptions": {
+      "ecmaVersion": 2018
+    },
+    "env": {
+      "es6": true,
+      "node": true
+    }
   }
 }
