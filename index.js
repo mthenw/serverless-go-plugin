@@ -122,7 +122,10 @@ module.exports = class Plugin {
       process.exit(1)
     }
 
-    const binPath = path.join(config.binDir, name)
+    let binPath = path.join(config.binDir, name)
+    if (process.platform === 'win32') {
+      binPath = binPath.replace(/\\/g, '/');
+    }
     this.serverless.service.functions[name].handler = binPath
     const packageConfig = {
       individually: true,
