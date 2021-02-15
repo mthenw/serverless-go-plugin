@@ -132,7 +132,7 @@ module.exports = class Plugin {
     } catch (e) {
       this.serverless.cli.consoleLog(
         `Go Plugin: ${chalk.yellow(
-          `Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`
+          `Error compiling "${name}" function (cwd: ${cwd}): ${e.message}`
         )}`
       );
       process.exit(1);
