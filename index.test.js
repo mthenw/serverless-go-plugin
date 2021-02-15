@@ -284,6 +284,54 @@ describe("Go Plugin", () => {
       );
       expect(execStub.firstCall.args[1].cwd).to.equal(".");
     });
+
+    it("compiles Go function w/ monorepo", async () => {
+      // given
+      const config = merge(
+        {
+          service: {
+            custom: {
+              go: {
+                monorepo: true,
+              },
+            },
+            functions: {
+              testFunc1: {
+                name: "testFunc1",
+                runtime: "go1.x",
+                handler: "functions/func1",
+              },
+              testFunc2: {
+                name: "testFunc2",
+                runtime: "go1.x",
+                handler: "functions/func2/main.go",
+              },
+            },
+          },
+        },
+        serverlessStub
+      );
+      const plugin = new Plugin(config);
+
+      // when
+      await plugin.hooks["before:package:createDeploymentArtifacts"]();
+
+      // then
+      expect(config.service.functions.testFunc1.handler).to.equal(
+        `.bin/testFunc1`
+      );
+      expect(execStub).to.have.been.calledWith(
+        `go build -ldflags="-s -w" -o ../../.bin/testFunc1 .`
+      );
+      expect(execStub.firstCall.args[1].cwd).to.equal("functions/func1");
+      expect(config.service.functions.testFunc2.handler).to.equal(
+        `.bin/testFunc2`
+      );
+      expect(execStub).to.have.been.calledWith(
+        `go build -ldflags="-s -w" -o ../../.bin/testFunc2 main.go`
+      );
+      expect(execStub.secondCall.args[1].cwd).to.equal("functions/func2");
+    });
   });
 
   describe(`serverless go build`, () => {
