@@ -8,11 +8,11 @@ const chalk = require("chalk");
 const path = require("path");
 
 const ConfigDefaults = {
-  monorepo: false,
   baseDir: ".",
   binDir: ".bin",
   cgo: 0,
   cmd: 'GOOS=linux go build -ldflags="-s -w"',
+  monorepo: false,
 };
 
 const GoRuntime = "go1.x";
