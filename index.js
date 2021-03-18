@@ -1,11 +1,13 @@
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
+const AdmZip = require("adm-zip");
 const merge = require("lodash.merge");
 const pMap = require("p-map");
 const os = require("os");
 const prettyHrtime = require("pretty-hrtime");
 const chalk = require("chalk");
 const path = require("path");
+const glob = require("glob");
 
 const ConfigDefaults = {
   baseDir: ".",
@@ -15,6 +17,7 @@ const ConfigDefaults = {
 };
 
 const GoRuntime = "go1.x";
+const ProvidedRuntime = "provided";
 
 module.exports = class Plugin {
   constructor(serverless, options) {
@@ -87,22 +90,76 @@ module.exports = class Plugin {
     );
   }
 
+  async packageFunctionAsCustomRuntime(name, binPath, outDir) {
+    const zip = new AdmZip();
+    // AWS discards handler property and looks for `bootstrap` file
+    zip.addLocalFile(binPath, "");
+    const packageConfig = this.serverless.service.functions[name].package;
+    if (packageConfig && packageConfig.include) {
+      packageConfig.include.forEach((globFilePath) => {
+        const files = glob.sync(globFilePath, {});
+        files.forEach((filePath) => {
+          const path = filePath.split("/");
+          const dir = path.splice(0, path.length - 1).join("/");
+          zip.addLocalFile(filePath, dir);
+        });
+      });
+    }
+
+    const outPath = path.join(outDir, name + ".zip");
+    await zip.writeZipPromise(outPath, {});
+
+    this.serverless.service.functions[name].package = {
+      artifact: outPath,
+    };
+  }
+
+  packageFunction(name, binPath) {
+    const packageConfig = {
+      individually: true,
+      exclude: [`./**`],
+      include: [binPath],
+    };
+    if (this.serverless.service.functions[name].package) {
+      packageConfig.include = packageConfig.include.concat(
+        this.serverless.service.functions[name].package.include
+      );
+    }
+    this.serverless.service.functions[name].package = packageConfig;
+  }
+
   compileFunctionAndIgnorePackage() {
     this.isInvoking = true;
     return this.compileFunction();
+  }
+
+  // binPath is based on cwd no baseDir
+  getCompileBinPath(name, config, isGoRuntimeProvided) {
+    const absHandler = path.resolve(config.baseDir);
+    const absBin = path.resolve(config.binDir);
+
+    if (isGoRuntimeProvided) {
+      return path.join(path.relative(absHandler, absBin), name, "bootstrap");
+    }
+
+    return path.join(path.relative(absHandler, absBin), name);
   }
 
   async compile(name, func) {
     const config = this.getConfig();
 
     const runtime = func.runtime || this.serverless.service.provider.runtime;
-    if (runtime !== GoRuntime) {
+    const goCustomRuntime = func.goCustomRuntime || config.goCustomRuntime;
+    const isGoRuntimeProvided = runtime === ProvidedRuntime && goCustomRuntime;
+    if (!isGoRuntimeProvided && runtime !== GoRuntime) {
       return;
     }
 
-    const absHandler = path.resolve(config.baseDir);
-    const absBin = path.resolve(config.binDir);
-    const compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
+    const compileBinPath = this.getCompileBinPath(
+      name,
+      config,
+      goCustomRuntime
+    );
     try {
       const [env, command] = parseCommand(
         `${config.cmd} -o ${compileBinPath} ${func.handler}`
@@ -126,21 +183,20 @@ module.exports = class Plugin {
     }
 
     let binPath = path.join(config.binDir, name);
+    if (isGoRuntimeProvided) {
+      binPath = path.join(binPath, "bootstrap");
+    }
     if (process.platform === "win32") {
       binPath = binPath.replace(/\\/g, "/");
     }
     this.serverless.service.functions[name].handler = binPath;
-    const packageConfig = {
-      individually: true,
-      exclude: [`./**`],
-      include: [binPath],
-    };
-    if (this.serverless.service.functions[name].package) {
-      packageConfig.include = packageConfig.include.concat(
-        this.serverless.service.functions[name].package.include
-      );
+
+    if (isGoRuntimeProvided) {
+      await this.packageFunctionAsCustomRuntime(name, binPath, config.binDir);
+      return;
     }
-    this.serverless.service.functions[name].package = packageConfig;
+
+    this.packageFunction(name, binPath);
   }
 
   getConfig() {
@@ -153,6 +209,7 @@ module.exports = class Plugin {
 };
 
 const envSetterRegex = /^(\w+)=('(.*)'|"(.*)"|(.*))/;
+
 function parseCommand(cmd) {
   const args = cmd.split(" ");
   const envSetters = {};
