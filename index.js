@@ -100,15 +100,17 @@ module.exports = class Plugin {
       return;
     }
 
-    const absHandler = path.resolve(config.baseDir);
+    const [baseDir, handler] = resolveBaseDirMacro(config, func);
+    const absHandler = path.resolve(baseDir);
     const absBin = path.resolve(config.binDir);
     const compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
     try {
       const [env, command] = parseCommand(
-        `${config.cmd} -o ${compileBinPath} ${func.handler}`
+        `${config.cmd} -o ${compileBinPath} ${handler}`
       );
+
       await exec(command, {
-        cwd: config.baseDir,
+        cwd: baseDir,
         env: Object.assign(
           {},
           process.env,
@@ -119,7 +121,7 @@ module.exports = class Plugin {
     } catch (e) {
       this.serverless.cli.consoleLog(
         `Go Plugin: ${chalk.yellow(
-          `Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`
+          `Error compiling "${name}" function (cwd: ${baseDir}): ${e.message}`
         )}`
       );
       process.exit(1);
@@ -177,4 +179,27 @@ function parseCommand(cmd) {
   }
 
   return [envSetters, command];
+}
+
+const macroResolvers = [
+  {
+    match: "{{handlerDir}}",
+    resolve: function (config, func) {
+      if (func.handler.endsWith(".go")) {
+        return [path.dirname(func.handler) + "/", path.basename(func.handler)];
+      }
+      return [func.handler + "/", "."];
+    },
+  },
+];
+
+function resolveBaseDirMacro(config, func) {
+  for (let i = 0; i < macroResolvers.length; i++) {
+    const resolver = macroResolvers[i];
+    if (config.baseDir === resolver.match) {
+      return resolver.resolve(config, func);
+    }
+  }
+
+  return [config.baseDir, func.handler];
 }

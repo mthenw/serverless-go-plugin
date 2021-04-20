@@ -55,6 +55,12 @@ custom:
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
 ```
 
+**baseDir** accept the following macros:
+
+| Name           | Description                                     | Example                                                                                |
+|----------------|-------------------------------------------------|----------------------------------------------------------------------------------------|
+| `{{handlerDir}}` | Will be resolved as the dir path of the handler | handler is `fns/hello/main.go` or `fns/hello` , then `{{handlerDir}}` will be fns/hello/ |
+
 ## How does it work?
 
 The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles a function only if `runtime` (either on function or provider level) is set to Go (`go1.x`).
