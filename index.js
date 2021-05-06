@@ -12,6 +12,7 @@ const ConfigDefaults = {
   binDir: ".bin",
   cgo: 0,
   cmd: 'GOOS=linux go build -ldflags="-s -w"',
+  monorepo: false,
 };
 
 const GoRuntime = "go1.x";
@@ -102,13 +103,25 @@ module.exports = class Plugin {
 
     const absHandler = path.resolve(config.baseDir);
     const absBin = path.resolve(config.binDir);
-    const compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
+    let compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
+    let cwd = config.baseDir;
+    let handler = func.handler;
+    if (config.monorepo) {
+      if (func.handler.endsWith(".go")) {
+        cwd = path.relative(absHandler, path.dirname(func.handler));
+        handler = path.basename(handler);
+      } else {
+        cwd = path.relative(absHandler, func.handler);
+        handler = ".";
+      }
+      compileBinPath = path.relative(cwd, compileBinPath);
+    }
     try {
       const [env, command] = parseCommand(
-        `${config.cmd} -o ${compileBinPath} ${func.handler}`
+        `${config.cmd} -o ${compileBinPath} ${handler}`
       );
       await exec(command, {
-        cwd: config.baseDir,
+        cwd: cwd,
         env: Object.assign(
           {},
           process.env,
@@ -119,7 +132,7 @@ module.exports = class Plugin {
     } catch (e) {
       this.serverless.cli.consoleLog(
         `Go Plugin: ${chalk.yellow(
-          `Error compiling "${name}" function (cwd: ${config.baseDir}): ${e.message}`
+          `Error compiling "${name}" function (cwd: ${cwd}): ${e.message}`
         )}`
       );
       process.exit(1);

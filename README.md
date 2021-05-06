@@ -53,6 +53,7 @@ custom:
     binDir: .bin # target folder for binary files
     cgo: 0 # CGO_ENABLED flag
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
+    monorepo: false # if enabled, builds function every directory (useful for monorepo where go.mod is managed by each function
 ```
 
 ## How does it work?
