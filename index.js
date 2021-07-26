@@ -27,9 +27,7 @@ module.exports = class Plugin {
 
     this.hooks = {
       "before:deploy:function:packageFunction": this.compileFunction.bind(this),
-      "before:package:createDeploymentArtifacts": this.compileFunctions.bind(
-        this
-      ),
+      "before:package:createDeploymentArtifacts": this.serverless.pluginManager.run(['go', 'build']),
       // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
       // plugin needs to compile a function and then ignore packaging.
       "before:invoke:local:invoke": this.compileFunctionAndIgnorePackage.bind(
