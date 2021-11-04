@@ -6,6 +6,8 @@ const os = require("os");
 const prettyHrtime = require("pretty-hrtime");
 const chalk = require("chalk");
 const path = require("path");
+const AdmZip = require("adm-zip");
+const { readFileSync } = require("fs");
 
 const ConfigDefaults = {
   baseDir: ".",
@@ -13,9 +15,9 @@ const ConfigDefaults = {
   cgo: 0,
   cmd: 'GOOS=linux go build -ldflags="-s -w"',
   monorepo: false,
+  supportedRuntimes: ["go1.x"],
+  buildAsBootstrap: false,
 };
-
-const GoRuntime = "go1.x";
 
 module.exports = class Plugin {
   constructor(serverless, options) {
@@ -97,7 +99,7 @@ module.exports = class Plugin {
     const config = this.getConfig();
 
     const runtime = func.runtime || this.serverless.service.provider.runtime;
-    if (runtime !== GoRuntime) {
+    if (!config.supportedRuntimes.includes(runtime)) {
       return;
     }
 
@@ -143,17 +145,32 @@ module.exports = class Plugin {
       binPath = binPath.replace(/\\/g, "/");
     }
     this.serverless.service.functions[name].handler = binPath;
-    const packageConfig = {
-      individually: true,
-      exclude: [`./**`],
-      include: [binPath],
-    };
+    const packageConfig = this.generatePackageConfig(config, binPath);
+
     if (this.serverless.service.functions[name].package) {
       packageConfig.include = packageConfig.include.concat(
         this.serverless.service.functions[name].package.include
       );
     }
     this.serverless.service.functions[name].package = packageConfig;
+  }
+
+  generatePackageConfig(config, binPath) {
+    if (config.buildAsBootstrap) {
+      const zip = new AdmZip();
+      zip.addFile("bootstrap", readFileSync(binPath), "", 0o755);
+      const zipPath = binPath + ".zip";
+      zip.writeZip(zipPath);
+      return {
+        individually: true,
+        artifact: zipPath,
+      };
+    }
+    return {
+      individually: true,
+      exclude: [`./**`],
+      include: [binPath],
+    };
   }
 
   getConfig() {
