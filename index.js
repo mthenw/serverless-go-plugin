@@ -59,7 +59,7 @@ module.exports = class Plugin {
     };
   }
 
-  async compileFunction() {
+  async compileFunction () {
     const name = this.options.function;
     const func = this.serverless.service.functions[this.options.function];
 
@@ -74,7 +74,7 @@ module.exports = class Plugin {
     );
   }
 
-  async compileFunctions() {
+  async compileFunctions () {
     if (this.isInvoking) {
       return;
     }
@@ -97,16 +97,16 @@ module.exports = class Plugin {
     );
   }
 
-  compileFunctionAndIgnorePackage() {
+  compileFunctionAndIgnorePackage () {
     this.isInvoking = true;
     return this.compileFunction();
   }
 
-  async compile(name, func) {
+  async compile (name, func) {
     const config = this.getConfig();
 
     const runtime = func.runtime || this.serverless.service.provider.runtime;
-    if (runtime !== GoRuntime || runtime !== Arm64Runtime) {
+    if (runtime !== GoRuntime && runtime !== Arm64Runtime) {
       return;
     }
 
@@ -176,7 +176,7 @@ module.exports = class Plugin {
 };
 
 const envSetterRegex = /^(\w+)=('(.*)'|"(.*)"|(.*))/;
-function parseCommand(cmd) {
+function parseCommand (cmd) {
   const args = cmd.split(" ");
   const envSetters = {};
   let command = "";
