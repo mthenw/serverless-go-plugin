@@ -15,7 +15,16 @@ const ConfigDefaults = {
   monorepo: false,
 };
 
+const Arm64ConfigDefaults = {
+  baseDir: ".",
+  binDir: ".bin",
+  cgo: 0,
+  cmd: 'GOOS=linux GOARCH=arm go build -ldflags="-s -w"',
+  monorepo: false,
+};
+
 const GoRuntime = "go1.x";
+const Arm64Runtime = "provided.al2";
 
 module.exports = class Plugin {
   constructor(serverless, options) {
@@ -97,7 +106,7 @@ module.exports = class Plugin {
     const config = this.getConfig();
 
     const runtime = func.runtime || this.serverless.service.provider.runtime;
-    if (runtime !== GoRuntime) {
+    if (runtime !== GoRuntime || runtime !== Arm64Runtime) {
       return;
     }
 
@@ -156,8 +165,9 @@ module.exports = class Plugin {
     this.serverless.service.functions[name].package = packageConfig;
   }
 
-  getConfig() {
-    let config = ConfigDefaults;
+  getConfig () {
+    let isArm64 = this.serverless.architecture === 'arm64'
+    let config = isArm64 ? Arm64ConfigDefaults : ConfigDefaults;
     if (this.serverless.service.custom && this.serverless.service.custom.go) {
       config = merge(config, this.serverless.service.custom.go);
     }
