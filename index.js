@@ -166,7 +166,7 @@ module.exports = class Plugin {
   }
 
   getConfig () {
-    let isArm64 = this.serverless.architecture === 'arm64'
+    let isArm64 = this.serverless.service.provider.architecture === 'arm64'
     let config = isArm64 ? Arm64ConfigDefaults : ConfigDefaults;
     if (this.serverless.service.custom && this.serverless.service.custom.go) {
       config = merge(config, this.serverless.service.custom.go);
