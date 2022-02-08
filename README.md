@@ -55,7 +55,7 @@ custom:
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
     monorepo: false # if enabled, builds function every directory (useful for monorepo where go.mod is managed by each function
     supportedRuntimes: ["go1.x"] # the plugin compiles a function only if runtime is declared here (either on function or provider level) 
-    buildAsBootstrap: false # if enabled, builds and archive function with only single "bootstrap" binary (useful for runtimes like provided.al2)
+    buildProvidedRuntimeAsBootstrap: false # if enabled, builds and archive function with only single "bootstrap" binary (useful for runtimes like provided.al2)
 ```
 
 ## How does it work?
@@ -74,12 +74,13 @@ include:
 
 ## How to run Golang Lambda on ARM?
 
-1. Add `provided.al2` to `supportedRuntimes` and enable `buildAsBootstrap` in plugin config
+1. Add `provided.al2` to `supportedRuntimes` and enable `buildProvidedRuntimeAsBootstrap` in plugin config
 2. Append `GOARCH=arm64` to your compile command (`cmd` line)
-3. Change architecture in global config:
+3. Change architecture and runtime in global config:
 ```yaml
 provider:
     architecture: arm64
+    runtime: provided.al2
 ```   
 
 **Warning!** First deploy may result in small downtime (~few seconds) of lambda, use some deployment strategy like canary for safer rollout.

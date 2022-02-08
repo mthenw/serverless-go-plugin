@@ -398,14 +398,20 @@ describe("Go Plugin", () => {
           service: {
             custom: {
               go: {
-                buildAsBootstrap: true,
+                supportedRuntimes: ["go1.x", "provided.al2"],
+                buildProvidedRuntimeAsBootstrap: true,
               },
             },
             functions: {
               testFunc1: {
                 name: "testFunc1",
-                runtime: "go1.x",
+                runtime: "provided.al2",
                 handler: "functions/func1",
+              },
+              testFunc2: {
+                name: "testFunc2",
+                runtime: "go1.x",
+                handler: "functions/func1/main.go",
               },
             },
           },
@@ -421,6 +427,12 @@ describe("Go Plugin", () => {
       expect(config.service.functions.testFunc1.package).to.deep.equal({
         individually: true,
         artifact: ".bin/testFunc1.zip",
+      });
+
+      expect(config.service.functions.testFunc2.package).to.deep.equal({
+        individually: true,
+        exclude: ["./**"],
+        include: [".bin/testFunc2"],
       });
     });
   });
