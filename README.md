@@ -54,11 +54,13 @@ custom:
     cgo: 0 # CGO_ENABLED flag
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
     monorepo: false # if enabled, builds function every directory (useful for monorepo where go.mod is managed by each function
+    supportedRuntimes: ["go1.x"] # the plugin compiles a function only if runtime is declared here (either on function or provider level) 
+    buildProvidedRuntimeAsBootstrap: false # if enabled, builds and archive function with only single "bootstrap" binary (useful for runtimes like provided.al2)
 ```
 
 ## How does it work?
 
-The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file. The plugin compiles a function only if `runtime` (either on function or provider level) is set to Go (`go1.x`).
+The plugin compiles every Go function defined in `serverless.yaml` into `.bin` directory. After that it internally changes `handler` so that the Serverless Framework will deploy the compiled file not the source file.
 
 For every matched function it also overrides `package` parameter to
 
@@ -69,3 +71,16 @@ exclude:
 include:
   - `<path to the compiled file and any files that you defined to be included>`
 ```
+
+## How to run Golang Lambda on ARM?
+
+1. Add `provided.al2` to `supportedRuntimes` and enable `buildProvidedRuntimeAsBootstrap` in plugin config
+2. Append `GOARCH=arm64` to your compile command (`cmd` line)
+3. Change architecture and runtime in global config:
+```yaml
+provider:
+    architecture: arm64
+    runtime: provided.al2
+```   
+
+**Warning!** First deploy may result in small downtime (~few seconds) of lambda, use some deployment strategy like canary for safer rollout.
