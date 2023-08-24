@@ -150,7 +150,8 @@ module.exports = class Plugin {
     this.serverless.service.functions[name].handler = binPath;
     const packageConfig = this.generatePackageConfig(runtime, config, binPath);
 
-    if (this.serverless.service.functions[name].package) {
+    if (this.serverless.service.functions[name].package
+        && this.serverless.service.functions[name].package.include) {
       packageConfig.include = packageConfig.include.concat(
         this.serverless.service.functions[name].package.include
       );
