@@ -1,10 +1,10 @@
 # ⚡️Serverless Framework Go Plugin
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
-[![npm](https://img.shields.io/npm/v/serverless-go-plugin)](https://www.npmjs.com/package/serverless-go-plugin)
+[![npm](https://img.shields.io/npm/v/serverless-go-plugin)](https://www.npmjs.com/package/serverless-golang-plugin)
 [![codecov](https://codecov.io/gh/mthenw/serverless-go-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/mthenw/serverless-go-plugin)
 
-`serverless-go-plugin` is a Serverless Framework plugin that compiles Go functions on the fly. You don't need to do it manually before `serverless deploy`. Once the plugin is installed it will happen automatically. *The plugin works with Serverless Framework version 1.52 and above.*
+`serverless-golang-plugin` is a Serverless Framework plugin that compiles Go functions on the fly. You don't need to do it manually before `serverless deploy`. Once the plugin is installed it will happen automatically. *The plugin works with Serverless Framework version 1.52 and above.*
 
 ### [dev.to: A better way of deploying Go services with Serverless Framework](https://dev.to/mthenw/a-better-way-of-deploying-go-services-with-serverless-framework-41c4)
 
@@ -23,14 +23,14 @@
 1. Install the plugin
 
     ```
-    npm i --save-dev serverless-go-plugin
+    npm i --save-dev serverless-golang-plugin
     ```
 
 1. Add it to your `serverless.yaml`
 
     ```
     plugins:
-      - serverless-go-plugin
+      - serverless-golang-plugin
     ```
 
 1. Replace every Go function's `handler` with `*.go` file path or a package path. E.g.
