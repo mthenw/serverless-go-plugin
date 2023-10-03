@@ -416,6 +416,7 @@ describe("Go Plugin", () => {
             },
           },
         },
+
         serverlessStub
       );
       const plugin = new Plugin(config);

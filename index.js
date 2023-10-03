@@ -108,9 +108,11 @@ module.exports = class Plugin {
 
     const absHandler = path.resolve(config.baseDir);
     const absBin = path.resolve(config.binDir);
+
     let compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
     let cwd = config.baseDir;
     let handler = func.handler;
+
     if (config.monorepo) {
       if (func.handler.endsWith(".go")) {
         cwd = path.relative(absHandler, path.dirname(func.handler));
@@ -121,10 +123,12 @@ module.exports = class Plugin {
       }
       compileBinPath = path.relative(cwd, compileBinPath);
     }
+
     try {
       const [env, command] = parseCommand(
         `${config.cmd} -o ${compileBinPath} ${handler}`
       );
+
       await exec(command, {
         cwd: cwd,
         env: Object.assign(
@@ -147,37 +151,52 @@ module.exports = class Plugin {
     if (process.platform === "win32") {
       binPath = binPath.replace(/\\/g, "/");
     }
-    this.serverless.service.functions[name].handler = binPath;
-    const packageConfig = this.generatePackageConfig(runtime, config, binPath);
 
-    if (this.serverless.service.functions[name].package
-        && this.serverless.service.functions[name].package.include) {
-      packageConfig.include = packageConfig.include.concat(
-        this.serverless.service.functions[name].package.include
-      );
-    }
-    this.serverless.service.functions[name].package = packageConfig;
+    this.serverless.service.functions[name].handler = binPath;
+
+    this.generatePackageConfig(name, runtime, config, binPath);
   }
 
-  generatePackageConfig(runtime, config, binPath) {
-    if (
-      config.buildProvidedRuntimeAsBootstrap &&
-      amazonProvidedRuntimes.includes(runtime)
-    ) {
-      const zip = new AdmZip();
-      zip.addFile("bootstrap", readFileSync(binPath), "", 0o755);
-      const zipPath = binPath + ".zip";
-      zip.writeZip(zipPath);
-      return {
-        individually: true,
-        artifact: zipPath,
-      };
-    }
-    return {
+  generatePackageConfig(name, runtime, config, binPath) {
+    const isProvided = config.buildProvidedRuntimeAsBootstrap;
+    const runtimeIncluded = amazonProvidedRuntimes.includes(runtime);
+
+    let baseConfig = {
       individually: true,
-      exclude: [`./**`],
-      include: [binPath],
     };
+
+    if (isProvided && runtimeIncluded) {
+      this.packageBootstrap(name, baseConfig, binPath);
+      return;
+    }
+
+    this.packageRegular(name, baseConfig, binPath);
+  }
+
+  packageBootstrap(name, baseConfig, binPath) {
+    const zip = new AdmZip();
+    zip.addFile("bootstrap", readFileSync(binPath), "", 0o755);
+
+    const zipPath = binPath + ".zip";
+    zip.writeZip(zipPath);
+
+    baseConfig.artifact = zipPath;
+
+    this.serverless.service.functions[name].package = baseConfig;
+  }
+
+  packageRegular(name, baseConfig, binPath) {
+    // TODO: refactor to use patterns field
+    baseConfig.exclude = [`./**`];
+    baseConfig.include = [binPath];
+
+    const pkg = this.serverless.service.functions[name].package;
+
+    if (pkg && pkg.include) {
+      baseConfig.include = baseConfig.include.concat(pkg.include);
+    }
+
+    this.serverless.service.functions[name].package = baseConfig;
   }
 
   getConfig() {
