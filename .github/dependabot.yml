@@ -9,7 +9,7 @@ updates:
     groups:
       minor_patch_dependencies:
         patterns:
-          - '*'
+          - "*"
         update-types:
           - minor
           - patch
@@ -22,7 +22,7 @@ updates:
     groups:
       minor_patch_dependencies:
         patterns:
-          - '*'
+          - "*"
         update-types:
           - minor
           - patch

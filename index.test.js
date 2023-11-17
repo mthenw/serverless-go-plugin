@@ -62,7 +62,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -71,19 +71,19 @@ describe("Go Plugin", () => {
 
       // then
       expect(config.service.functions.testFunc2.handler).to.equal(
-        `.bin/testFunc2`
+        `.bin/testFunc2`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`,
       );
       expect(execStub.firstCall.args[1].cwd).to.equal(".");
       expect(execStub.firstCall.args[1].env.GOOS).to.equal("linux");
       expect(execStub.firstCall.args[1].env.CGO_ENABLED).to.equal("0");
       expect(config.service.functions.testFunc3.handler).to.equal(
-        `.bin/testFunc3`
+        `.bin/testFunc3`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3`
+        `go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3`,
       );
     });
 
@@ -111,7 +111,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -120,16 +120,16 @@ describe("Go Plugin", () => {
 
       // then
       expect(config.service.functions.testFunc2.handler).to.equal(
-        `.bin/testFunc2`
+        `.bin/testFunc2`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc2 functions/func2/main.go`,
       );
       expect(config.service.functions.testFunc1.handler).to.equal(
-        `.bin/testFunc1`
+        `.bin/testFunc1`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`,
       );
     });
 
@@ -152,7 +152,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -161,7 +161,7 @@ describe("Go Plugin", () => {
 
       // then
       expect(execStub).to.have.been.calledOnceWith(
-        `go build -o .bin/testFunc1 functions/func1/main.go`
+        `go build -o .bin/testFunc1 functions/func1/main.go`,
       );
       expect(execStub.firstCall.args[1].env.CGO_ENABLED).to.equal("1");
       expect(execStub.firstCall.args[1].env.GOOS).to.equal("linux");
@@ -186,7 +186,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -195,7 +195,7 @@ describe("Go Plugin", () => {
 
       // then
       expect(execStub).to.have.been.calledOnceWith(
-        `go build -ldflags="-s -w" -o ../.bin/testFunc1 functions/func1/main.go`
+        `go build -ldflags="-s -w" -o ../.bin/testFunc1 functions/func1/main.go`,
       );
       expect(execStub.firstCall.args[1].cwd).to.equal("gopath");
     });
@@ -216,7 +216,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -241,7 +241,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -273,7 +273,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -304,7 +304,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -329,7 +329,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config, { function: "testFunc1" });
 
@@ -338,7 +338,7 @@ describe("Go Plugin", () => {
 
       // then
       expect(execStub).to.have.been.calledOnceWith(
-        `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
+        `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`,
       );
       expect(execStub.firstCall.args[1].cwd).to.equal(".");
     });
@@ -367,7 +367,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -376,17 +376,17 @@ describe("Go Plugin", () => {
 
       // then
       expect(config.service.functions.testFunc1.handler).to.equal(
-        `.bin/testFunc1`
+        `.bin/testFunc1`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o ../../.bin/testFunc1 .`
+        `go build -ldflags="-s -w" -o ../../.bin/testFunc1 .`,
       );
       expect(execStub.firstCall.args[1].cwd).to.equal("functions/func1");
       expect(config.service.functions.testFunc2.handler).to.equal(
-        `.bin/testFunc2`
+        `.bin/testFunc2`,
       );
       expect(execStub).to.have.been.calledWith(
-        `go build -ldflags="-s -w" -o ../../.bin/testFunc2 main.go`
+        `go build -ldflags="-s -w" -o ../../.bin/testFunc2 main.go`,
       );
       expect(execStub.secondCall.args[1].cwd).to.equal("functions/func2");
     });
@@ -416,7 +416,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -452,7 +452,7 @@ describe("Go Plugin", () => {
             },
           },
         },
-        serverlessStub
+        serverlessStub,
       );
       const plugin = new Plugin(config);
 
@@ -461,7 +461,7 @@ describe("Go Plugin", () => {
 
       // then
       expect(config.service.functions.testFunc1.handler).to.equal(
-        `.bin/testFunc1`
+        `.bin/testFunc1`,
       );
     });
   });

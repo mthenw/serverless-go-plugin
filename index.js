@@ -20,7 +20,7 @@ const ConfigDefaults = {
 };
 
 // amazonProvidedRuntimes contains Amazon Linux runtimes. Update this array after each new version release.
-const amazonProvidedRuntimes = ["provided.al2"];
+const amazonProvidedRuntimes = ["provided.al2", "provided.al2023"];
 
 module.exports = class Plugin {
   constructor(serverless, options) {
@@ -30,14 +30,12 @@ module.exports = class Plugin {
 
     this.hooks = {
       "before:deploy:function:packageFunction": this.compileFunction.bind(this),
-      "before:package:createDeploymentArtifacts": this.compileFunctions.bind(
-        this
-      ),
+      "before:package:createDeploymentArtifacts":
+        this.compileFunctions.bind(this),
       // Because of https://github.com/serverless/serverless/blob/master/lib/plugins/aws/invokeLocal/index.js#L361
       // plugin needs to compile a function and then ignore packaging.
-      "before:invoke:local:invoke": this.compileFunctionAndIgnorePackage.bind(
-        this
-      ),
+      "before:invoke:local:invoke":
+        this.compileFunctionAndIgnorePackage.bind(this),
       "go:build:build": this.compileFunctions.bind(this),
     };
 
@@ -65,8 +63,8 @@ module.exports = class Plugin {
 
     this.serverless.cli.consoleLog(
       `Go Plugin: ${chalk.yellow(
-        `Compilation time (${name}): ${prettyHrtime(timeEnd)}`
-      )}`
+        `Compilation time (${name}): ${prettyHrtime(timeEnd)}`,
+      )}`,
     );
   }
 
@@ -84,12 +82,14 @@ module.exports = class Plugin {
         const func = this.serverless.service.functions[name];
         await this.compile(name, func);
       },
-      { concurrency: os.cpus().length }
+      { concurrency: os.cpus().length },
     );
     const timeEnd = process.hrtime(timeStart);
 
     this.serverless.cli.consoleLog(
-      `Go Plugin: ${chalk.yellow("Compilation time: " + prettyHrtime(timeEnd))}`
+      `Go Plugin: ${chalk.yellow(
+        "Compilation time: " + prettyHrtime(timeEnd),
+      )}`,
     );
   }
 
@@ -123,7 +123,7 @@ module.exports = class Plugin {
     }
     try {
       const [env, command] = parseCommand(
-        `${config.cmd} -o ${compileBinPath} ${handler}`
+        `${config.cmd} -o ${compileBinPath} ${handler}`,
       );
       await exec(command, {
         cwd: cwd,
@@ -131,14 +131,14 @@ module.exports = class Plugin {
           {},
           process.env,
           { CGO_ENABLED: config.cgo.toString() },
-          env
+          env,
         ),
       });
     } catch (e) {
       this.serverless.cli.consoleLog(
         `Go Plugin: ${chalk.yellow(
-          `Error compiling "${name}" function (cwd: ${cwd}): ${e.message}`
-        )}`
+          `Error compiling "${name}" function (cwd: ${cwd}): ${e.message}`,
+        )}`,
       );
       process.exit(1);
     }
@@ -150,10 +150,12 @@ module.exports = class Plugin {
     this.serverless.service.functions[name].handler = binPath;
     const packageConfig = this.generatePackageConfig(runtime, config, binPath);
 
-    if (this.serverless.service.functions[name].package
-        && this.serverless.service.functions[name].package.include) {
+    if (
+      this.serverless.service.functions[name].package &&
+      this.serverless.service.functions[name].package.include
+    ) {
       packageConfig.include = packageConfig.include.concat(
-        this.serverless.service.functions[name].package.include
+        this.serverless.service.functions[name].package.include,
       );
     }
     this.serverless.service.functions[name].package = packageConfig;

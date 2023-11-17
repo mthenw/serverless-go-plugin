@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/serverless-golang-plugin)](https://www.npmjs.com/package/serverless-golang-plugin)
 [![codecov](https://codecov.io/gh/mthenw/serverless-go-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/mthenw/serverless-go-plugin)
 
-`serverless-golang-plugin` is a Serverless Framework plugin that compiles Go functions on the fly. You don't need to do it manually before `serverless deploy`. Once the plugin is installed it will happen automatically. *The plugin works with Serverless Framework version 1.52 and above.*
+`serverless-golang-plugin` is a Serverless Framework plugin that compiles Go functions on the fly. You don't need to do it manually before `serverless deploy`. Once the plugin is installed it will happen automatically. _The plugin works with Serverless Framework version 1.52 and above._
 
 ### [dev.to: A better way of deploying Go services with Serverless Framework](https://dev.to/mthenw/a-better-way-of-deploying-go-services-with-serverless-framework-41c4)
 
@@ -19,28 +19,27 @@
 
 ## Install
 
-
 1. Install the plugin
 
-    ```
-    npm i --save-dev serverless-golang-plugin
-    ```
+   ```
+   npm i --save-dev serverless-golang-plugin
+   ```
 
 1. Add it to your `serverless.yaml`
 
-    ```
-    plugins:
-      - serverless-golang-plugin
-    ```
+   ```
+   plugins:
+     - serverless-golang-plugin
+   ```
 
 1. Replace every Go function's `handler` with `*.go` file path or a package path. E.g.
 
-    ```
-    functions:
-      example:
-        runtime: go1.x
-        handler: functions/example/main.go # or just functions/example
-    ```
+   ```
+   functions:
+     example:
+       runtime: go1.x
+       handler: functions/example/main.go # or just functions/example
+   ```
 
 ## Configuration
 
@@ -54,7 +53,7 @@ custom:
     cgo: 0 # CGO_ENABLED flag
     cmd: GOOS=linux go build -ldflags="-s -w"' # compile command
     monorepo: false # if enabled, builds function every directory (useful for monorepo where go.mod is managed by each function
-    supportedRuntimes: ["go1.x"] # the plugin compiles a function only if runtime is declared here (either on function or provider level) 
+    supportedRuntimes: ["go1.x"] # the plugin compiles a function only if runtime is declared here (either on function or provider level)
     buildProvidedRuntimeAsBootstrap: false # if enabled, builds and archive function with only single "bootstrap" binary (useful for runtimes like provided.al2)
 ```
 
@@ -77,10 +76,11 @@ include:
 1. Add `provided.al2` to `supportedRuntimes` and enable `buildProvidedRuntimeAsBootstrap` in plugin config
 2. Append `GOARCH=arm64` to your compile command (`cmd` line)
 3. Change architecture and runtime in global config:
+
 ```yaml
 provider:
-    architecture: arm64
-    runtime: provided.al2
-```   
+  architecture: arm64
+  runtime: provided.al2
+```
 
 **Warning!** First deploy may result in small downtime (~few seconds) of lambda, use some deployment strategy like canary for safer rollout.
