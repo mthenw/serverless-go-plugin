@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: monthly
+    reviewers:
+      - danprueitt
+    groups:
+      minor_patch_dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    reviewers:
+      - danprueitt
+    groups:
+      minor_patch_dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
