@@ -94,7 +94,7 @@ describe("Go Plugin", () => {
           service: {
             custom: {
               go: {
-                supportedRuntimes: ["go1.x", "provided.al2"],
+                supportedRuntimes: ["go1.x", "provided.al2", "provided.al2023"],
               },
             },
             functions: {
@@ -107,6 +107,11 @@ describe("Go Plugin", () => {
                 name: "testFunc2",
                 runtime: "go1.x",
                 handler: "functions/func2/main.go",
+              },
+              testFunc3: {
+                name: "testFunc3",
+                runtime: "provided.al2023",
+                handler: "functions/func3/main.go",
               },
             },
           },
@@ -130,6 +135,12 @@ describe("Go Plugin", () => {
       );
       expect(execStub).to.have.been.calledWith(
         `go build -ldflags="-s -w" -o .bin/testFunc1 functions/func1/main.go`
+      );
+      expect(config.service.functions.testFunc3.handler).to.equal(
+        `.bin/testFunc3`
+      );
+      expect(execStub).to.have.been.calledWith(
+        `go build -ldflags="-s -w" -o .bin/testFunc3 functions/func3/main.go`
       );
     });
 
@@ -398,7 +409,7 @@ describe("Go Plugin", () => {
           service: {
             custom: {
               go: {
-                supportedRuntimes: ["go1.x", "provided.al2"],
+                supportedRuntimes: ["go1.x", "provided.al2", "provided.al2023"],
                 buildProvidedRuntimeAsBootstrap: true,
               },
             },
@@ -412,6 +423,11 @@ describe("Go Plugin", () => {
                 name: "testFunc2",
                 runtime: "go1.x",
                 handler: "functions/func1/main.go",
+              },
+              testFunc3: {
+                name: "testFunc3",
+                runtime: "provided.al2023",
+                handler: "functions/func1",
               },
             },
           },
@@ -433,6 +449,11 @@ describe("Go Plugin", () => {
         individually: true,
         exclude: ["./**"],
         include: [".bin/testFunc2"],
+      });
+
+      expect(config.service.functions.testFunc3.package).to.deep.equal({
+        individually: true,
+        artifact: ".bin/testFunc3.zip",
       });
     });
   });
