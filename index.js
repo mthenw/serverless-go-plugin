@@ -20,7 +20,7 @@ const ConfigDefaults = {
 };
 
 // amazonProvidedRuntimes contains Amazon Linux runtimes. Update this array after each new version release.
-const amazonProvidedRuntimes = ["provided.al2"];
+const amazonProvidedRuntimes = ["provided.al2", "provided.al2023"];
 
 module.exports = class Plugin {
   constructor(serverless, options) {
@@ -175,7 +175,7 @@ module.exports = class Plugin {
     }
     return {
       individually: true,
-      exclude: [`./**`],
+      exclude: ["./**"],
       include: [binPath],
     };
   }
