@@ -7,6 +7,7 @@ const prettyHrtime = require("pretty-hrtime");
 const chalk = require("chalk");
 const path = require("path");
 const AdmZip = require("adm-zip");
+const glob = require("glob");
 const { readFileSync } = require("fs");
 
 const ConfigDefaults = {
@@ -148,24 +149,33 @@ module.exports = class Plugin {
       binPath = binPath.replace(/\\/g, "/");
     }
     this.serverless.service.functions[name].handler = binPath;
-    const packageConfig = this.generatePackageConfig(runtime, config, binPath);
-
-    if (this.serverless.service.functions[name].package
-        && this.serverless.service.functions[name].package.include) {
-      packageConfig.include = packageConfig.include.concat(
+    const packageConfig = this.generatePackageConfig(
+      runtime,
+      config,
+      binPath,
+      this.serverless.service.functions[name].package &&
         this.serverless.service.functions[name].package.include
-      );
-    }
+        ? this.serverless.service.functions[name].package.include
+        : []
+    );
+
     this.serverless.service.functions[name].package = packageConfig;
   }
 
-  generatePackageConfig(runtime, config, binPath) {
+  generatePackageConfig(runtime, config, binPath, includes) {
     if (
       config.buildProvidedRuntimeAsBootstrap &&
       amazonProvidedRuntimes.includes(runtime)
     ) {
       const zip = new AdmZip();
       zip.addFile("bootstrap", readFileSync(binPath), "", 0o755);
+      for (let i = 0; i < includes.length; i++) {
+        const files = glob.sync(includes[i]);
+        files.forEach((file) => {
+          const entryName = path.dirname(file);
+          zip.addLocalFile(file, entryName);
+        });
+      }
       const zipPath = binPath + ".zip";
       zip.writeZip(zipPath);
       return {
@@ -176,7 +186,7 @@ module.exports = class Plugin {
     return {
       individually: true,
       exclude: [`./**`],
-      include: [binPath],
+      include: [binPath].concat(includes),
     };
   }
 
