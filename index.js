@@ -112,6 +112,8 @@ module.exports = class Plugin {
     let compileBinPath = path.join(path.relative(absHandler, absBin), name); // binPath is based on cwd no baseDir
     let cwd = config.baseDir;
     let handler = func.handler;
+    // Exclude container functions
+    if (handler == null) return;
     if (config.monorepo) {
       if (func.handler.endsWith(".go")) {
         cwd = path.relative(absHandler, path.dirname(func.handler));
